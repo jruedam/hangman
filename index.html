@@ -4,7 +4,7 @@
   <title>Juego del Ahorcado - Ajedrez en Alemán</title>
   <style>
     body {
-      font-family: monospace;
+      font-family: Arial, sans-serif;
       text-align: center;
     }
 
@@ -12,171 +12,99 @@
       color: #333;
     }
 
-    #hangman {
-      margin-bottom: 20px;
+    .hangman-image {
+      width: 300px;
+      height: 300px;
+      margin: 20px auto;
+      background: url('https://i.imgur.com/HANGMAN_IMAGE.png') center center no-repeat;
+    }
+
+    .word-display {
+      margin: 20px;
       font-size: 24px;
     }
 
-    #wordContainer {
-      font-size: 30px;
-      margin-bottom: 20px;
-    }
-
-    #remainingAttempts {
-      font-weight: bold;
-    }
-
-    #usedLetters {
-      font-weight: bold;
-    }
-
-    input[type="text"] {
+    .guess-input {
+      margin: 10px;
       padding: 5px;
-      margin-right: 10px;
+      font-size: 16px;
     }
 
-    button {
-      padding: 5px 10px;
+    .button-container {
+      margin: 10px;
     }
   </style>
 </head>
 <body>
   <h1>Juego del Ahorcado - Ajedrez en Alemán</h1>
-  <div id="hangman">
-    <pre id="hangmanDrawing">
-     ___________
-    |/         |
-    |          O
-    |         /|\
-    |         / \
-    |
-   _|___
-  |     |
-  |_____|</pre>
+  <div class="hangman-image"></div>
+  <div class="word-display"></div>
+  <input type="text" class="guess-input" maxlength="1" placeholder="Ingresa una letra" />
+  <div class="button-container">
+    <button onclick="guessLetter()">Adivinar</button>
+    <button onclick="resetGame()">Reiniciar</button>
   </div>
-  <div id="wordContainer">
-    <!-- Aquí se mostrará la palabra oculta -->
-  </div>
-  <p>Intentos restantes: <span id="remainingAttempts">7</span></p>
-  <p>Letras utilizadas: <span id="usedLetters"></span></p>
-  <input type="text" id="guessInput" placeholder="Adivina una letra">
-  <button onclick="guessLetter()">Adivinar</button>
 
   <script>
-    // Palabras del juego de ajedrez en alemán
-    var words = ["König", "Dame", "Turm", "Läufer", "Springer", "Bauer"];
+    var word = 'AJEDREZ'; // Palabra a adivinar
+    var guessedLetters = []; // Letras adivinadas
 
-    // Palabra aleatoria del array
-    var randomWord = words[Math.floor(Math.random() * words.length)];
-
-    // Arreglo para almacenar las letras adivinadas
-    var guessedLetters = [];
-
-    // Número de intentos restantes
-    var remainingAttempts = 7;
-
-    // Función para mostrar la palabra oculta
-    function displayWord() {
-      var wordContainer = document.getElementById("wordContainer");
-      var hiddenWord = "";
-      for (var i = 0; i < randomWord.length; i++) {
-        var letter = randomWord[i];
+    // Función para mostrar la palabra con las letras adivinadas
+    function updateWordDisplay() {
+      var wordDisplay = '';
+      for (var i = 0; i < word.length; i++) {
+        var letter = word[i];
         if (guessedLetters.includes(letter)) {
-          hiddenWord += letter + " ";
+          wordDisplay += letter + ' ';
         } else {
-          hiddenWord += "_ ";
+          wordDisplay += '_ ';
         }
       }
-      wordContainer.textContent = hiddenWord;
+      document.querySelector('.word-display').textContent = wordDisplay;
     }
 
     // Función para adivinar una letra
     function guessLetter() {
-      var guessInput = document.getElementById("guessInput");
-      var guess = guessInput.value.trim().toUpperCase();
-      guessInput.value = "";
+      var guessInput = document.querySelector('.guess-input');
+      var guess = guessInput.value.toUpperCase();
+      guessInput.value = '';
 
-      if (guess.length !== 1) {
-        alert("Ingresa una sola letra.");
+      if (!guess.match(/[A-Z]/)) {
+        alert('Por favor, ingresa una letra válida.');
         return;
       }
 
       if (guessedLetters.includes(guess)) {
-        alert("Ya has adivinado esa letra.");
+        alert('Ya has adivinado esa letra.');
         return;
       }
 
       guessedLetters.push(guess);
+      updateWordDisplay();
 
-      if (randomWord.includes(guess)) {
-        if (isWordGuessed()) {
-          alert("¡Felicidades! Has adivinado la palabra correctamente.");
-          resetGame();
-        }
-      } else {
-        remainingAttempts--;
-
-        if (remainingAttempts === 0) {
-          alert("¡Has perdido! La palabra era: " + randomWord);
-          resetGame();
-        }
-
-        updateHangmanDrawing();
+      if (!word.includes(guess)) {
+        alert('¡Letra incorrecta!');
       }
 
-      document.getElementById("remainingAttempts").textContent = remainingAttempts;
-      updateUsedLetters();
-    }
+      // Aquí puedes agregar la lógica para mostrar partes del muñeco del ahorcado según el número de intentos fallidos
+      // y comprobar si el jugador ha perdido o ganado
 
-    // Función para verificar si se ha adivinado la palabra completa
-    function isWordGuessed() {
-      for (var i = 0; i < randomWord.length; i++) {
-        if (!guessedLetters.includes(randomWord[i])) {
-          return false;
-        }
+      // Ejemplo de lógica para comprobar si se ha ganado
+      if (!document.querySelector('.word-display').textContent.includes('_')) {
+        alert('¡Felicidades! ¡Has ganado!');
+        resetGame();
       }
-      return true;
-    }
-
-    // Función para actualizar el dibujo del ahorcado
-    function updateHangmanDrawing() {
-      var hangmanDrawing = document.getElementById("hangmanDrawing");
-      var hangmanStages = [
-        "     ___________\n    |/         |\n    |          O\n    |         /|\\\n    |         / \\",
-        "     ___________\n    |/         |\n    |          O\n    |         /|\\\n    |         /",
-        "     ___________\n    |/         |\n    |          O\n    |         /|\\\n    |",
-        "     ___________\n    |/         |\n    |          O\n    |         /|",
-        "     ___________\n    |/         |\n    |          O\n    |         /",
-        "     ___________\n    |/         |\n    |          O\n    |         |",
-        "     ___________\n    |/         |\n    |          O\n    |",
-        "     ___________\n    |/         |\n    |          O",
-        "     ___________\n    |/         |",
-        "     ___________\n    |",
-        "     ___________",
-        ""
-      ];
-      hangmanDrawing.textContent = hangmanStages[hangmanStages.length - remainingAttempts - 1];
-    }
-
-    // Función para actualizar las letras utilizadas
-    function updateUsedLetters() {
-      var usedLettersElement = document.getElementById("usedLetters");
-      usedLettersElement.textContent = guessedLetters.join(", ");
     }
 
     // Función para reiniciar el juego
     function resetGame() {
-      randomWord = words[Math.floor(Math.random() * words.length)];
       guessedLetters = [];
-      remainingAttempts = 7;
-      document.getElementById("remainingAttempts").textContent = remainingAttempts;
-      updateHangmanDrawing();
-      displayWord();
-      updateUsedLetters();
+      updateWordDisplay();
+      // Restablece la imagen y otras partes del juego si es necesario
     }
 
-    // Inicializar el juego al cargar la página
-    displayWord();
+    // Actualiza la visualización inicial de la palabra
+    updateWordDisplay();
   </script>
 </body>
 </html>
