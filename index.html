@@ -12,11 +12,9 @@
       color: #333;
     }
 
-    .hangman-image {
-      width: 300px;
-      height: 300px;
-      margin: 20px auto;
-      background: url('https://i.imgur.com/HANGMAN_IMAGE.png') center center no-repeat;
+    .hangman {
+      font-size: 36px;
+      margin-bottom: 20px;
     }
 
     .word-display {
@@ -37,7 +35,16 @@
 </head>
 <body>
   <h1>Juego del Ahorcado - Ajedrez en Alemán</h1>
-  <div class="hangman-image"></div>
+  <div class="hangman">
+    <pre>
+      +---+
+      |   |
+          |
+          |
+          |
+          |
+    </pre>
+  </div>
   <div class="word-display"></div>
   <input type="text" class="guess-input" maxlength="1" placeholder="Ingresa una letra" />
   <div class="button-container">
@@ -48,6 +55,78 @@
   <script>
     var word = 'AJEDREZ'; // Palabra a adivinar
     var guessedLetters = []; // Letras adivinadas
+    var incorrectGuesses = 0; // Número de intentos fallidos
+
+    // Función para mostrar el dibujo del ahorcado
+    function updateHangman() {
+      var hangman = document.querySelector('.hangman');
+      var hangmanDrawing = '';
+      if (incorrectGuesses === 0) {
+        hangmanDrawing = `
+          +---+
+          |   |
+              |
+              |
+              |
+              |
+        `;
+      } else if (incorrectGuesses === 1) {
+        hangmanDrawing = `
+          +---+
+          |   |
+          O   |
+              |
+              |
+              |
+        `;
+      } else if (incorrectGuesses === 2) {
+        hangmanDrawing = `
+          +---+
+          |   |
+          O   |
+          |   |
+              |
+              |
+        `;
+      } else if (incorrectGuesses === 3) {
+        hangmanDrawing = `
+          +---+
+          |   |
+          O   |
+         /|   |
+              |
+              |
+        `;
+      } else if (incorrectGuesses === 4) {
+        hangmanDrawing = `
+          +---+
+          |   |
+          O   |
+         /|\\  |
+              |
+              |
+        `;
+      } else if (incorrectGuesses === 5) {
+        hangmanDrawing = `
+          +---+
+          |   |
+          O   |
+         /|\\  |
+         /    |
+              |
+        `;
+      } else {
+        hangmanDrawing = `
+          +---+
+          |   |
+          O   |
+         /|\\  |
+         / \\  |
+              |
+        `;
+      }
+      hangman.innerHTML = `<pre>${hangmanDrawing}</pre>`;
+    }
 
     // Función para mostrar la palabra con las letras adivinadas
     function updateWordDisplay() {
@@ -83,15 +162,22 @@
       updateWordDisplay();
 
       if (!word.includes(guess)) {
+        incorrectGuesses++;
+        updateHangman();
         alert('¡Letra incorrecta!');
       }
 
-      // Aquí puedes agregar la lógica para mostrar partes del muñeco del ahorcado según el número de intentos fallidos
-      // y comprobar si el jugador ha perdido o ganado
+      // Aquí puedes agregar la lógica para comprobar si el jugador ha perdido o ganado
 
       // Ejemplo de lógica para comprobar si se ha ganado
       if (!document.querySelector('.word-display').textContent.includes('_')) {
         alert('¡Felicidades! ¡Has ganado!');
+        resetGame();
+      }
+
+      // Ejemplo de lógica para comprobar si se ha perdido
+      if (incorrectGuesses === 6) {
+        alert('¡Oh no! ¡Has perdido!');
         resetGame();
       }
     }
@@ -99,12 +185,14 @@
     // Función para reiniciar el juego
     function resetGame() {
       guessedLetters = [];
+      incorrectGuesses = 0;
       updateWordDisplay();
-      // Restablece la imagen y otras partes del juego si es necesario
+      updateHangman();
     }
 
-    // Actualiza la visualización inicial de la palabra
+    // Actualiza la visualización inicial de la palabra y el dibujo del ahorcado
     updateWordDisplay();
+    updateHangman();
   </script>
 </body>
 </html>
